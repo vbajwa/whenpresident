@@ -10,10 +10,6 @@ app.set("port", process.env.PORT || 3001);
 app.use("/public", express.static("public"));
 app.use(parser.urlencoded({extended: true}));
 
-app.get("/", function(req, res){
-  res.sendFile(__dirname + "/views/main.html");
-});
-
 app.get("/api/candidates", function(req, res){
   Candidate.find({}).then(function(candidates){
     res.json(candidates);
@@ -42,6 +38,10 @@ app.post("/api/candidates/:name", function(req, res){
   Candidate.findOneAndUpdate({name: req.params.name}, req.body.candidate, {new: true}).then(function(candidate){
     res.json(candidate);
   });
+});
+
+app.get("/*", function(req, res){
+  res.sendFile(__dirname + "/views/main.html");
 });
 
 app.listen(app.get("port"), function(){
