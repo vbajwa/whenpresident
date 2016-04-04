@@ -24,12 +24,15 @@ app.get("/candidates", function(req, res){
 });
 
 app.get("/candidates/:name", function(req, res){
-  var data = {
-    name: req.params.name,
-    year: 2024
-  }
+  var desiredName = req.params.name.toLowerCase();
+  var candidateOutput;
+  db.candidates.forEach(function(candidate){
+    if(desiredName === candidate.name.toLowerCase()){
+      candidateOutput = candidate;
+    }
+  });
   res.render("candidates-show", {
-    candidate: data
+    candidate: candidateOutput
   });
 });
 
