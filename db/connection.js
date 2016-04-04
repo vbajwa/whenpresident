@@ -10,7 +10,4 @@ var CandidateSchema = new mongoose.Schema(
 mongoose.model("Candidate", CandidateSchema);
 mongoose.connect("mongodb://localhost/whenpresident");
 
-var seedData = require("./seeds.json");
-module.exports = {
-  candidates: seedData
-};
+module.exports = mongoose;
