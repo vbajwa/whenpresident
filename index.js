@@ -23,6 +23,16 @@ app.get("/candidates", function(req, res){
   });
 });
 
+app.get("/candidates/:name", function(req, res){
+  var data = {
+    name: req.params.name,
+    year: 2024
+  }
+  res.render("candidates-show", {
+    candidate: data
+  });
+});
+
 app.listen(3001, function(){
   console.log("It's aliiive!");
 });
