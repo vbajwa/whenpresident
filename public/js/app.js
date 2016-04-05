@@ -12,6 +12,7 @@
     "$locationProvider",
     Router
   ])
+  .factory("Candidate", Candidate)
   .controller("indexCtrl", indexCtrl);
 
   function Router($stateProvider, $urlRouterProvider, $locationProvider){
@@ -30,21 +31,17 @@
     $urlRouterProvider.otherwise("/");
   }
 
-  function indexCtrl(){
+  Candidate.$inject = [ "$resource" ];
+  function Candidate($resource){
+    var Candidate = $resource("/api/candidates/:name");
+    Candidate.all = Candidate.query();
+    return Candidate;
+  }
+
+  indexCtrl.$inject = [ "Candidate" ];
+  function indexCtrl(Candidate){
     var vm = this;
-    vm.candidates = [
-      {
-        name: "Alice",
-        year: 1
-      },
-      {
-        name: "Bob",
-        year: 2
-      },
-      {
-        name: "Carol"
-      }
-    ];
+    vm.candidates = Candidate.all;
   }
 
 })();
