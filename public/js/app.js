@@ -71,6 +71,13 @@
           $state.go("show", {name: candidate.name});
         });
       }
+      scope.delete = function(){
+        var index = Candidate.all.indexOf(scope.candidate);
+        Candidate.remove({name: originalName}, function(response){
+          Candidate.all.splice(index, 1);
+          $state.go("index");
+        });
+      }
     }
     return directive;
   }

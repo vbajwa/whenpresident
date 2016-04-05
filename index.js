@@ -28,7 +28,7 @@ app.post("/api/candidates", function(req, res){
   });
 });
 
-app.post("/api/candidates/:name/delete", function(req, res){
+app.delete("/api/candidates/:name", function(req, res){
   Candidate.findOneAndRemove({name: req.params.name}).then(function(){
     res.json({success: true});
   });
