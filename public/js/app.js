@@ -13,6 +13,7 @@
     Router
   ])
   .factory("Candidate", Candidate)
+  .directive("candidateForm", candidateForm)
   .controller("indexCtrl", indexCtrl)
   .controller("showCtrl", showCtrl);
 
@@ -43,6 +44,17 @@
     var Candidate = $resource("/api/candidates/:name");
     Candidate.all = Candidate.query();
     return Candidate;
+  }
+
+  candidateForm.$inject = [ "Candidate" ];
+  function candidateForm(Candidate){
+    var directive = {};
+    directive.templateUrl = "/public/html/candidates-form.html";
+    directive.scope = {
+      candidate: "=",
+      action: "@"
+    }
+    return directive;
   }
 
   indexCtrl.$inject = [ "Candidate" ];
