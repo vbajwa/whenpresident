@@ -41,13 +41,15 @@
 
   Candidate.$inject = [ "$resource" ];
   function Candidate($resource){
-    var Candidate = $resource("/api/candidates/:name");
+    var Candidate = $resource("/api/candidates/:name", {}, {
+      update: {method: "PUT"}
+    });
     Candidate.all = Candidate.query();
     return Candidate;
   }
 
-  candidateForm.$inject = [ "$state", "Candidate" ];
-  function candidateForm($state, Candidate){
+  candidateForm.$inject = [ "$state", "$stateParams", "Candidate" ];
+  function candidateForm($state, $stateParams, Candidate){
     var directive = {};
     directive.templateUrl = "/public/html/candidates-form.html";
     directive.scope = {
@@ -55,10 +57,17 @@
       action: "@"
     }
     directive.link = function(scope){
+      var originalName = $stateParams.name;
       scope.create = function(){
         Candidate.save({candidate: scope.candidate}, function(response){
           var candidate = new Candidate(response);
           Candidate.all.push(candidate);
+          $state.go("show", {name: candidate.name});
+        });
+      }
+      scope.update = function(){
+        Candidate.update({name: originalName}, {candidate: scope.candidate}, function(candidate){
+          console.log("Updated!");
           $state.go("show", {name: candidate.name});
         });
       }

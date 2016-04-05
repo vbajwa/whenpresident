@@ -3,7 +3,7 @@
   <input type="number" placeholder="Year" data-ng-model="candidate.year" />
   <div data-ng-if="action == 'edit'">
     <button>Concede</button>
-    <button>Edit Platform</button>
+    <button data-ng-click="update()">Edit Platform</button>
   </div>
   <div data-ng-if="action == 'create'">
     <button data-ng-click="create()">Run for President</button>
