@@ -8,7 +8,7 @@ var Candidate = mongoose.model("Candidate");
 
 app.set("port", process.env.PORT || 3001);
 app.use("/public", express.static("public"));
-app.use(parser.urlencoded({extended: true}));
+app.use(parser.json({extended: true}));
 
 app.get("/api/candidates", function(req, res){
   Candidate.find({}).then(function(candidates){

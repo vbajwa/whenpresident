@@ -46,13 +46,22 @@
     return Candidate;
   }
 
-  candidateForm.$inject = [ "Candidate" ];
-  function candidateForm(Candidate){
+  candidateForm.$inject = [ "$state", "Candidate" ];
+  function candidateForm($state, Candidate){
     var directive = {};
     directive.templateUrl = "/public/html/candidates-form.html";
     directive.scope = {
       candidate: "=",
       action: "@"
+    }
+    directive.link = function(scope){
+      scope.create = function(){
+        Candidate.save({candidate: scope.candidate}, function(response){
+          var candidate = new Candidate(response);
+          Candidate.all.push(candidate);
+          $state.go("show", {name: candidate.name});
+        });
+      }
     }
     return directive;
   }
