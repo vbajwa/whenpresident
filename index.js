@@ -6,9 +6,6 @@ var app     = express();
 
 var Candidate = mongoose.model("Candidate");
 
-// var mongodbUri = 'mongodb://localhost/whenpresident';
-// mongoose.connect(process.env.MONGOLAB_URI || mongodbUri)
-
 app.set("port", process.env.PORT || 3001);
 app.use("/public", express.static("public"));
 app.use(parser.json({extended: true}));
