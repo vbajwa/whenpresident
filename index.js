@@ -2,14 +2,17 @@ var express = require("express");
 var parser  = require("body-parser");
 var hbs     = require("express-handlebars");
 var session = require("express-session");
+var env     = require("./env");
 var mongoose= require("./db/connection");
 
 var app     = express();
 
 var Candidate = mongoose.model("Candidate");
 
+process.env.session_secret = env.session_secret;
+
 app.use(session({
-  secret: "some random string",
+  secret: process.env.session_secret,
   resave: false,
   saveUninitialized: false,
   store: new (require("connect-mongo")(session))({
