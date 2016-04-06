@@ -1,11 +1,21 @@
 var express = require("express");
 var parser  = require("body-parser");
 var hbs     = require("express-handlebars");
+var session = require("express-session");
 var mongoose= require("./db/connection");
 
 var app     = express();
 
 var Candidate = mongoose.model("Candidate");
+
+app.use(session({
+  secret: "some random string",
+  resave: false,
+  saveUninitialized: false,
+  store: new (require("connect-mongo")(session))({
+    mongooseConnection: mongoose.connection
+  })
+}));
 
 app.set("port", process.env.PORT || 3001);
 app.set("view engine", "hbs");
