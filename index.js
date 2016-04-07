@@ -84,7 +84,23 @@ app.get("/login/twitter/callback", function(req, res){
         screen_name: req.session.t_screen_name
       }
     }, function(e, response){
-      res.json(response.body);
+      var candidate_info = {
+        name:         response.body.name,
+        t_id:         response.body.id,
+        t_username:   response.body.screen_name,
+        t_photo_url:  response.body.profile_image_url
+      }
+      Candidate.findOneAndUpdate({t_id: response.body.id}, candidate_info, function(e, candidate){
+        if(candidate){
+          req.session.candidate_id  = candidate._id;
+          res.json(candidate);
+        }else{
+          Candidate.create(candidate_info, function(e, newCandidate){
+            req.session.candidate_id  = newCandidate._id;
+            res.json(newCandidate);
+          });
+        }
+      });
     });
   });
 });
