@@ -65,6 +65,15 @@ app.post("/candidates/:name/positions", function(req, res){
   });
 });
 
+app.post("/candidates/:name/positions/:index", function(req, res){
+  Candidate.findOne({name: req.params.name}).then(function(candidate){
+    candidate.positions.splice(req.params.index, 1);
+    candidate.save().then(function(){
+      res.redirect("/candidates/" + candidate.name);
+    });
+  });
+});
+
 app.listen(app.get("port"), function(){
   console.log("It's aliiive!");
 });
