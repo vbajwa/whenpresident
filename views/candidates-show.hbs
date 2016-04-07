@@ -10,4 +10,14 @@
   <input type="number" name="candidate[year]" placeholder="Year" value="{{candidate.year}}" />
   <button type="submit">Edit Platform</button>
 </form>
+
+  {{#each candidate.positions as |position|}}
+  <p>{{position}}</p>
+  {{/each}}
+
+  <form action="/candidates/{{candidate.name}}/positions" method="post">
+    <textarea name="position"></textarea>
+    <button type="submit">Add a position</button>
+  </form>
+
 {{/unless}}
