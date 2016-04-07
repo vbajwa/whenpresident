@@ -4,7 +4,6 @@ var hbs     = require("express-handlebars");
 var session = require("express-session");
 var request = require("request");
 var qstring = require("qs");
-var env     = require("./env");
 var mongoose= require("./db/connection");
 var twitter = require("./lib/twitter_auth");
 
@@ -12,10 +11,13 @@ var app     = express();
 
 var Candidate = mongoose.model("Candidate");
 
-process.env.session_secret = env.session_secret;
-process.env.t_callback_url = env.t_callback_url;
-process.env.t_consumer_key = env.t_consumer_key;
-process.env.t_consumer_secret = env.t_consumer_secret;
+if(process.env.NODE_ENV !== "production"){
+  var env   = require("./env");
+  process.env.session_secret = env.session_secret;
+  process.env.t_callback_url = env.t_callback_url;
+  process.env.t_consumer_key = env.t_consumer_key;
+  process.env.t_consumer_secret = env.t_consumer_secret;
+}
 
 app.use(session({
   secret: process.env.session_secret,
