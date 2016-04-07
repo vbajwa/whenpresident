@@ -56,6 +56,26 @@ app.get("/login/twitter", function(req, res){
   });
 });
 
+app.get("/login/twitter/callback", function(req, res){
+  var url = "https://api.twitter.com/oauth/access_token";
+  var auth_data = qstring.parse(req.body);
+  var oauth = {
+    consumer_key:     process.env.t_consumer_key,
+    consumer_secret:  process.env.t_consumer_secret,
+    token:            req.session.t_oauth_token,
+    token_secret:     req.session.t_oauth_token_secret,
+    verifier:         req.query.oauth_verifier
+  }
+  request.post({url: url, oauth: oauth}, function(e, response){
+    var auth_data = qstring.parse(response.body);
+    req.session.t_oauth_token         = auth_data.oauth_token;
+    req.session.t_oauth_token_secret  = auth_data.oauth_token_secret;
+    req.session.t_user_id             = auth_data.user_id;
+    req.session.t_screen_name         = auth_data.screen_name;
+    res.json(auth_data);
+  });
+});
+
 app.get("/candidates", function(req, res){
   Candidate.find({}).then(function(candidates){
     res.render("candidates-index", {
