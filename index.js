@@ -6,6 +6,7 @@ var request = require("request");
 var qstring = require("qs");
 var env     = require("./env");
 var mongoose= require("./db/connection");
+var twitter = require("./lib/twitter_auth");
 
 var app     = express();
 
@@ -36,14 +37,9 @@ app.engine(".hbs", hbs({
 app.use("/assets", express.static("public"));
 app.use(parser.urlencoded({extended: true}));
 app.use(function(req, res, next){
-  if(req.session.candidate_id){
-    Candidate.findById(req.session.candidate_id, function(e, candidate){
-      res.locals.user = candidate;
-      next();
-    });
-  }else{
+  twitter.checkIfSignedIn(req, res, function(){
     next();
-  }
+  });
 });
 
 app.get("/", function(req, res){
@@ -51,87 +47,15 @@ app.get("/", function(req, res){
 });
 
 app.get("/login/twitter", function(req, res){
-  var url = "https://api.twitter.com/oauth/request_token";
-  var oauth = {
-    callback:         process.env.t_callback_url,
-    consumer_key:     process.env.t_consumer_key,
-    consumer_secret:  process.env.t_consumer_secret
-  }
-  request.post({url: url, oauth: oauth}, function(e, response){
-    var auth_data = qstring.parse(response.body);
-    var post_data = qstring.stringify({oauth_token: auth_data.oauth_token});
-    req.session.t_oauth_token         = auth_data.oauth_token;
-    req.session.t_oauth_token_secret  = auth_data.oauth_token_secret;
-    res.redirect("https://api.twitter.com/oauth/authenticate?" + post_data);
+  twitter.getSigninURL(req, res, function(url){
+    res.redirect(url);
   });
 });
 
 app.get("/login/twitter/callback", function(req, res){
-  var url = "https://api.twitter.com/oauth/access_token";
-  var auth_data = qstring.parse(req.body);
-  var oauth = {
-    consumer_key:     process.env.t_consumer_key,
-    consumer_secret:  process.env.t_consumer_secret,
-    token:            req.session.t_oauth_token,
-    token_secret:     req.session.t_oauth_token_secret,
-    verifier:         req.query.oauth_verifier
-  }
-  request.post({url: url, oauth: oauth}, function(e, response){
-    var auth_data = qstring.parse(response.body);
-    req.session.t_user_id             = auth_data.user_id;
-    req.session.t_screen_name         = auth_data.screen_name;
-    req.session.t_oauth               = {
-      consumer_key:     process.env.t_consumer_key,
-      consumer_secret:  process.env.t_consumer_secret,
-      token:            auth_data.oauth_token,
-      token_secret:     auth_data.oauth_token_secret
-    }
-    request.get({
-      url:    "https://api.twitter.com/1.1/users/show.json",
-      json:   true,
-      oauth:  req.session.t_oauth,
-      qs:     {
-        screen_name: req.session.t_screen_name
-      }
-    }, function(e, response){
-      var candidate_info = {
-        name:         response.body.name,
-        t_id:         response.body.id,
-        t_username:   response.body.screen_name,
-        t_photo_url:  response.body.profile_image_url
-      }
-      Candidate.findOneAndUpdate({t_id: response.body.id}, candidate_info, function(e, candidate){
-        if(candidate){
-          req.session.candidate_id  = candidate._id;
-          res.redirect("/");
-        }else{
-          Candidate.create(candidate_info, function(e, newCandidate){
-            req.session.candidate_id  = newCandidate._id;
-            res.redirect("/");
-          });
-        }
-      });
-    });
+  twitter.whenSignedIn(req, res, function(){
+    res.redirect("/");
   });
-});
-
-
-app.get("/apitest/:username", function(req, res){
-  request.get({
-    url:    "https://api.twitter.com/1.1/statuses/user_timeline.json",
-    json:   true,
-    oauth:  req.session.t_oauth,
-    qs:     {
-      screen_name: req.params.username,
-      count: 2
-    }
-  }, function(e, response){
-    res.json(response.body);
-  });
-
-app.get("/logout", function(req, res){
-  req.session.destroy();
-  res.redirect("/");
 });
 
 app.get("/candidates", function(req, res){
