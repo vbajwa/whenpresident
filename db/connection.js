@@ -3,7 +3,8 @@ var mongoose  = require("mongoose");
 var CandidateSchema = new mongoose.Schema(
   {
     name: String,
-    year: Number
+    year: Number,
+    positions: [String]
   }
 );
 
