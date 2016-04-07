@@ -35,6 +35,16 @@ app.engine(".hbs", hbs({
 }));
 app.use("/assets", express.static("public"));
 app.use(parser.urlencoded({extended: true}));
+app.use(function(req, res, next){
+  if(req.session.candidate_id){
+    Candidate.findById(req.session.candidate_id, function(e, candidate){
+      res.locals.user = candidate;
+      next();
+    });
+  }else{
+    next();
+  }
+});
 
 app.get("/", function(req, res){
   res.render("app-welcome");
@@ -93,11 +103,11 @@ app.get("/login/twitter/callback", function(req, res){
       Candidate.findOneAndUpdate({t_id: response.body.id}, candidate_info, function(e, candidate){
         if(candidate){
           req.session.candidate_id  = candidate._id;
-          res.json(candidate);
+          res.redirect("/");
         }else{
           Candidate.create(candidate_info, function(e, newCandidate){
             req.session.candidate_id  = newCandidate._id;
-            res.json(newCandidate);
+            res.redirect("/");
           });
         }
       });
