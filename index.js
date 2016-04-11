@@ -18,6 +18,7 @@ app.engine(".hbs", hbs({
 app.use("/assets", express.static("public"));
 app.use(parser.urlencoded({extended: true}));
 
+// --------------index function-------
 app.get("/", function(req, res){
   res.render("app-welcome");
 });
@@ -43,6 +44,21 @@ app.post("/candidates", function(req, res){
     res.redirect("/candidates/" + candidate.name);
 });
 });
+
+app.post("/candidates/:name", function(req, res){
+  Candidate.findOneAndUpdate({name: req.params.name}, req.body.candidate, {new: true}).then(function(candidate){
+    res.redirect("/candidates/"+candidate.name);
+  });
+});
+
+//DELETE FXN----------
+
+app.post("/candidates/:name/delete", function(req, res){
+  Candidate.findOneAndRemove({name: req.params.name}).then(function(){
+    res.redirect("/candidates")
+  });
+});
+
 
 app.listen(app.get("port"), function(){
   console.log("It's aliiive!");
